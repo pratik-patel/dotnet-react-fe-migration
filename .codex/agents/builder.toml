@@ -25,6 +25,13 @@ Outputs:
 
 Rules:
 - Follow renderModel exactly; do not infer missing render details.
+- Fail fast if manifest render fidelity is abstract or incomplete (missing concrete fields/columns/validation/conditional rules required for like-to-like rendering).
+- Treat `likeToLikeSpec` as mandatory build contract for layout, fields, grids, validation, styles, and event mapping.
+- Treat `buildFoundation` as mandatory construction contract for deterministic UI assembly, state flow, data flow, route bindings, and acceptance criteria.
+- Treat `businessLogicTrace` as mandatory behavior contract for implementing scattered rules consistently across views/actions.
+- Do not proceed when `likeToLikeSpec` is missing required sections or evidence references.
+- Do not proceed when `buildFoundation` is missing required sections or contains unresolved/placeholder structures.
+- Do not proceed when `businessLogicTrace` is missing critical rules for mutation, validation, or navigation behavior.
 - Implement all interactiveContracts, enableDisableRules, uiStates, businessLogic, `views[]`, and `actions[]`.
 - Use only approved shared components and design tokens.
 - Produce first-pass like-for-like screen output including styling structure comparable to the source view.

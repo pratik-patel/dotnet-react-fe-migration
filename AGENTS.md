@@ -21,6 +21,10 @@ Use a coordinator plus five specialist agents:
 
 ## Required Inputs/Outputs
 - `analyst` output: `artefacts/manifests/*.json`, `_summary.json`, `_complexity-routing.json`, `_execution-plan.json`, `_manifest-validation-report.json`.
+- Each screen manifest must include `likeToLikeSpec` (layout tree, field/grid matrices, validation matrix, style map, template usage, event flow, evidence map).
+- Each screen manifest must include `businessLogicTrace` (rule-level trace from scattered sources with source refs, affected views/actions, confidence, verification mode).
+- Each screen manifest must include `buildFoundation` (UI blueprint, state/data/route/style models, component contracts, acceptance oracle).
+- Each screen manifest must include explicit `unknowns[]` and `blocked` sections; optimistic assumptions are not allowed.
 - Stable input schemas: `.codex/schemas/screen-manifest.schema.json`, `.codex/schemas/execution-plan.schema.json`.
 - `architect_normalizer` output: `react-app` foundation, `.codex/rules/react-project.md`, `conversion-config.json`, shared component contracts.
 - `builder` output: `src/pages/**`, hooks/schemas/types, `e2e/{screenId}.spec.ts`, `artefacts/conversion-notes/{screenId}.md`.
@@ -29,7 +33,10 @@ Use a coordinator plus five specialist agents:
 
 ## Run Policy
 - Agents support minimal invocation prompts (example: `Run analyst`) by resolving repository defaults.
+- `analyst` must run an internal self-healing extraction loop and only hand off manifests when per-screen completeness/evidence thresholds are met (or explicitly marked blocked).
 - Do not start `builder` for a screen if manifest completeness fails.
+- Do not start `builder` when `likeToLikeSpec` is incomplete or evidence coverage is insufficient.
+- Do not start `builder` when `buildFoundation` is incomplete or non-deterministic.
 - Builder executes full first-pass implementation for all routed screens, including layout and styling fidelity.
 - Builder outputs user-facing, interactive React screens that implement manifest contracts/states as concrete UI behavior.
 - Builder implements grouped screen actions/modes from one manifest (`views[]`, `actions[]`) unless a split is explicitly requested.

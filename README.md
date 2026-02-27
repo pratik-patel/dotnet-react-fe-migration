@@ -6,7 +6,7 @@
 - `.codex/rules/`: Global migration and React project rules consumed by agents.
 - `.codex/schemas/`: Stable JSON schemas (not agent outputs).
 - `artefacts/`: Generated outputs only (manifests, scorecards, reports, screenshots).
-- `legacy-src/`: Imported .NET source project to analyze and migrate.
+- `.NET source`: Any imported .NET solution/project location in the workspace (analyst auto-discovers root; no fixed folder required).
 - `react-app/`: Generated and normalized React implementation target.
 
 ## Manifest Modeling Contract
@@ -53,6 +53,13 @@ Use this checklist after each stage.
 
 1. Analyst
 - `artefacts/manifests/{screenId}.json` exists per grouped feature screen.
+- `likeToLikeSpec` is present in each screen manifest and includes:
+  - `layoutTree`, `componentSpecs`, `fieldMatrix`, `gridMatrix`
+  - `validationMatrix`, `conditionalRules`, `styleMap`, `templateUsage`
+  - `eventFlow`, `evidenceMap`
+- `buildFoundation` is present in each screen manifest and includes:
+  - `uiBlueprint`, `stateModel`, `dataFlowModel`, `routeModel`
+  - `styleModel`, `componentContractModel`, `acceptanceOracle`
 - Aggregate outputs exist:
   - `_summary.json`
   - `_api-catalog.json`

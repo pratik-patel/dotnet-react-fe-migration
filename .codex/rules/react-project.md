@@ -1,12 +1,14 @@
 # React Project Rules
 
 1. Use TypeScript for all generated source files.
-2. Use only approved shared components from `react-app/conversion-config.json`.
-3. Use design tokens only; do not hardcode color, spacing, radius, or typography values.
-4. Keep screen code deterministic and manifest-driven.
+2. Treat `react-app/conversion-config.json` as the canonical project contract.
+3. Use only approved shared components under `react-app/src/components/shared`.
+4. Use design tokens only from `react-app/src/styles/tokens.css`; no hardcoded color/spacing/radius/typography values.
 5. Treat one manifest as one feature screen with multiple modes/actions (`views[]`, `actions[]`).
-6. Implement all `interactiveContracts`, `enableDisableRules`, and declared `uiStates`.
-7. Keep behavior parity with source contracts and expected route/action outcomes.
-8. Require `data-testid` on interactive elements that map to `interactiveContracts[].elementId`.
-9. Consider a screen PASS only when visual, structural, functional, state coverage, accessibility baseline, and performance guardrail checks pass.
-10. Keep fixes minimal and local; if root cause is manifest incompleteness, emit a manifest patch instead of guessing.
+6. Preserve route/action parity from `primaryRoute`, `routes[]`, `actions[]`, and `interactiveContracts`.
+7. Preserve validation parity from DataAnnotations, ModelState branches, template rules, and service/EF error paths captured in manifests.
+8. Preserve style/template parity from `likeToLikeSpec.styleMap` and `likeToLikeSpec.templateUsage`.
+9. Require `data-testid` on interactive elements mapped from `interactiveContracts[].elementId` where applicable.
+10. Do not implement screens when manifest completeness gates fail; emit explicit blocking notes instead.
+11. Keep output deterministic: same manifest set and config must produce same file structure and behavior contract.
+12. Keep backend API contracts unchanged unless explicitly approved.

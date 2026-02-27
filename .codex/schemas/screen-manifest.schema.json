@@ -19,9 +19,14 @@
     "dataSources",
     "interactiveContracts",
     "businessLogic",
+    "businessLogicTrace",
     "enableDisableRules",
     "uiStates",
-    "renderModel"
+    "renderModel",
+    "likeToLikeSpec",
+    "buildFoundation",
+    "unknowns",
+    "blocked"
   ],
   "properties": {
     "screenId": { "type": "string", "minLength": 1 },
@@ -158,6 +163,41 @@
       }
     },
     "businessLogic": { "type": "array" },
+    "businessLogicTrace": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ruleId",
+          "rule",
+          "derivedFrom",
+          "affectedViews",
+          "affectedActions",
+          "sourceRefs",
+          "confidence",
+          "verificationMode"
+        ],
+        "properties": {
+          "ruleId": { "type": "string", "minLength": 1 },
+          "rule": { "type": "string", "minLength": 1 },
+          "derivedFrom": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "enum": ["controller", "view", "model", "annotation", "template", "javascript", "route", "service"]
+            }
+          },
+          "affectedViews": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "affectedActions": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "sourceRefs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "confidence": { "type": "string", "enum": ["high", "medium", "low"] },
+          "verificationMode": { "type": "string", "enum": ["static", "runtime", "inferred"] },
+          "implementationNotes": { "type": "string" }
+        }
+      }
+    },
     "enableDisableRules": { "type": "array" },
     "uiStates": { "type": "array" },
     "renderModel": {
@@ -177,6 +217,415 @@
         "components": {
           "type": "object",
           "minProperties": 1
+        }
+      }
+    },
+    "likeToLikeSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "layoutTree",
+        "componentSpecs",
+        "fieldMatrix",
+        "gridMatrix",
+        "validationMatrix",
+        "conditionalRules",
+        "styleMap",
+        "templateUsage",
+        "eventFlow",
+        "evidenceMap"
+      ],
+      "properties": {
+        "layoutTree": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "type", "order", "sourceRef"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "type": { "type": "string", "minLength": 1 },
+              "parentId": { "type": "string" },
+              "order": { "type": "integer", "minimum": 0 },
+              "classes": { "type": "array", "items": { "type": "string" } },
+              "sourceRef": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "componentSpecs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["componentId", "componentType", "viewIds", "sourceRef"],
+            "properties": {
+              "componentId": { "type": "string", "minLength": 1 },
+              "componentType": { "type": "string", "minLength": 1 },
+              "viewIds": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+              "classes": { "type": "array", "items": { "type": "string" } },
+              "bindings": { "type": "array", "items": { "type": "string" } },
+              "sourceRef": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "fieldMatrix": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["viewId", "fields"],
+            "properties": {
+              "viewId": { "type": "string", "minLength": 1 },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["name", "label", "inputType", "order", "sourceRef"],
+                  "properties": {
+                    "name": { "type": "string", "minLength": 1 },
+                    "label": { "type": "string", "minLength": 1 },
+                    "inputType": { "type": "string", "minLength": 1 },
+                    "editor": { "type": "string" },
+                    "defaultValue": {},
+                    "readonly": { "type": "boolean" },
+                    "disabled": { "type": "boolean" },
+                    "order": { "type": "integer", "minimum": 0 },
+                    "sourceRef": { "type": "string", "minLength": 1 }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "gridMatrix": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["viewId", "columns"],
+            "properties": {
+              "viewId": { "type": "string", "minLength": 1 },
+              "columns": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["key", "label", "order", "sourceRef"],
+                  "properties": {
+                    "key": { "type": "string", "minLength": 1 },
+                    "label": { "type": "string", "minLength": 1 },
+                    "binding": { "type": "string" },
+                    "order": { "type": "integer", "minimum": 0 },
+                    "actions": { "type": "array", "items": { "type": "string" } },
+                    "sourceRef": { "type": "string", "minLength": 1 }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "validationMatrix": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["viewId", "field", "rules", "messages", "sourceRef"],
+            "properties": {
+              "viewId": { "type": "string", "minLength": 1 },
+              "field": { "type": "string", "minLength": 1 },
+              "rules": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+              "messages": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+              "validationMode": { "type": "array", "items": { "type": "string", "enum": ["client", "server"] } },
+              "sourceRef": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "conditionalRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["ruleId", "scope", "condition", "effect", "sourceRef"],
+            "properties": {
+              "ruleId": { "type": "string", "minLength": 1 },
+              "scope": { "type": "string", "minLength": 1 },
+              "condition": { "type": "string", "minLength": 1 },
+              "effect": { "type": "string", "minLength": 1 },
+              "sourceRef": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "styleMap": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["targetId", "classes", "cssRefs", "sourceRef"],
+            "properties": {
+              "targetId": { "type": "string", "minLength": 1 },
+              "classes": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+              "cssRefs": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+              "sourceRef": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "templateUsage": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["templatePath", "appliesTo", "sourceRef"],
+            "properties": {
+              "templatePath": { "type": "string", "minLength": 1 },
+              "appliesTo": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+              "effect": { "type": "string" },
+              "sourceRef": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "eventFlow": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["eventId", "trigger", "handler", "outcome", "sourceRef"],
+            "properties": {
+              "eventId": { "type": "string", "minLength": 1 },
+              "trigger": { "type": "string", "minLength": 1 },
+              "handler": { "type": "string", "minLength": 1 },
+              "outcome": { "type": "string", "minLength": 1 },
+              "sourceRef": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "evidenceMap": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["claimId", "claimType", "sourceRef"],
+            "properties": {
+              "claimId": { "type": "string", "minLength": 1 },
+              "claimType": { "type": "string", "minLength": 1 },
+              "sourceRef": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "buildFoundation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uiBlueprint",
+        "stateModel",
+        "dataFlowModel",
+        "routeModel",
+        "styleModel",
+        "componentContractModel",
+        "acceptanceOracle"
+      ],
+      "properties": {
+        "uiBlueprint": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["nodeId", "nodeType", "viewId", "order", "sourceRef"],
+            "properties": {
+              "nodeId": { "type": "string", "minLength": 1 },
+              "nodeType": { "type": "string", "minLength": 1 },
+              "viewId": { "type": "string", "minLength": 1 },
+              "parentNodeId": { "type": "string" },
+              "order": { "type": "integer", "minimum": 0 },
+              "componentRef": { "type": "string" },
+              "sourceRef": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "stateModel": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["initialState", "states", "transitions"],
+          "properties": {
+            "initialState": { "type": "string", "minLength": 1 },
+            "states": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["stateId", "scope", "sourceRef"],
+                "properties": {
+                  "stateId": { "type": "string", "minLength": 1 },
+                  "scope": { "type": "string", "minLength": 1 },
+                  "entryEffects": { "type": "array", "items": { "type": "string" } },
+                  "exitEffects": { "type": "array", "items": { "type": "string" } },
+                  "sourceRef": { "type": "string", "minLength": 1 }
+                }
+              }
+            },
+            "transitions": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["transitionId", "from", "to", "trigger", "sourceRef"],
+                "properties": {
+                  "transitionId": { "type": "string", "minLength": 1 },
+                  "from": { "type": "string", "minLength": 1 },
+                  "to": { "type": "string", "minLength": 1 },
+                  "trigger": { "type": "string", "minLength": 1 },
+                  "guard": { "type": "string" },
+                  "effects": { "type": "array", "items": { "type": "string" } },
+                  "sourceRef": { "type": "string", "minLength": 1 }
+                }
+              }
+            }
+          }
+        },
+        "dataFlowModel": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["flowId", "dataSourceId", "consumers", "sourceRef"],
+            "properties": {
+              "flowId": { "type": "string", "minLength": 1 },
+              "dataSourceId": { "type": "string", "minLength": 1 },
+              "consumers": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+              "transformRules": { "type": "array", "items": { "type": "string" } },
+              "errorHandling": { "type": "array", "items": { "type": "string" } },
+              "sourceRef": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "routeModel": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["routeId", "path", "bindingStrategy", "sourceRef"],
+            "properties": {
+              "routeId": { "type": "string", "minLength": 1 },
+              "path": { "type": "string", "minLength": 1 },
+              "params": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+              "query": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+              "bindingStrategy": { "type": "string", "minLength": 1 },
+              "sourceRef": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "styleModel": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["targetId", "classStack", "layoutRole", "sourceRef"],
+            "properties": {
+              "targetId": { "type": "string", "minLength": 1 },
+              "classStack": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+              "layoutRole": { "type": "string", "minLength": 1 },
+              "tokenHints": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+              "sourceRef": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "componentContractModel": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["componentId", "props", "events", "sourceRef"],
+            "properties": {
+              "componentId": { "type": "string", "minLength": 1 },
+              "props": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+              "events": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+              "requiredStates": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+              "sourceRef": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "acceptanceOracle": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["checkId", "dimension", "expectation", "sourceRef"],
+            "properties": {
+              "checkId": { "type": "string", "minLength": 1 },
+              "dimension": { "type": "string", "minLength": 1 },
+              "expectation": { "type": "string", "minLength": 1 },
+              "severity": { "type": "string", "enum": ["critical", "major", "minor"] },
+              "sourceRef": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "unknowns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "unknownId",
+          "category",
+          "description",
+          "impact",
+          "blocking",
+          "requiredEvidence",
+          "sourceRefs"
+        ],
+        "properties": {
+          "unknownId": { "type": "string", "minLength": 1 },
+          "category": {
+            "type": "string",
+            "enum": ["route", "view", "action", "validation", "style", "navigation", "data", "state", "template", "other"]
+          },
+          "description": { "type": "string", "minLength": 1 },
+          "impact": { "type": "string", "enum": ["critical", "major", "minor"] },
+          "blocking": { "type": "boolean" },
+          "requiredEvidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "remediationHints": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "sourceRefs": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "blocked": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["isBlocked", "reasons"],
+      "properties": {
+        "isBlocked": { "type": "boolean" },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "recommendedNextActions": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
         }
       }
     },

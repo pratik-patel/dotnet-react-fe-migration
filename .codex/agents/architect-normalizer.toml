@@ -29,6 +29,14 @@ Outputs:
 
 Rules:
 - Run manifest completeness gate before allowing builder.
+- Enforce like-to-like completeness gate before allowing builder:
+  - block build when manifests do not contain concrete render fidelity (field definitions, column definitions, validation metadata, conditional rules, css/class evidence).
+  - block build when `likeToLikeSpec` is missing or incomplete.
+  - block build when `buildFoundation` is missing or incomplete.
+  - block build when `buildFoundation` sections are present but cannot be mapped to deterministic React implementation steps.
+  - block build when `businessLogicTrace` is missing or does not cover critical mutation/validation/navigation rules.
+  - block build when `likeToLikeSpec.evidenceMap` does not cover render/layout/validation/action claims.
+  - block build when `high` confidence claims lack direct source evidence references.
 - Enforce design tokens and ban hardcoded style values.
 - Route screens into standard vs guided build using complexity factors.
 - Enforce screen-level grouping model:
@@ -46,6 +54,11 @@ Rules:
   - prefer keeping dependencies that point to earlier screens in deterministic order
   - record every removed edge in `_execution-plan.validation.json`
 - Emit `/artefacts/manifests/_execution-plan.validation.json` with `valid`, `errors`, and normalized ordering summary.
+- Include a completeness section in `_execution-plan.validation.json` with per-screen `readyForBuilder: true|false` and explicit blocking reasons.
+- Include per-screen completeness metrics in `_execution-plan.validation.json`:
+  - `likeToLikeCompletenessScore`
+  - `buildFoundationCompletenessScore`
+  - `highConfidenceEvidenceCoverage`
 - Execute deterministically: same manifest set must produce the same routing, shared contracts, and normalization outputs.
 - Use stable ordering from `artefacts/manifests/_execution-plan.json` when generating derived artifacts.
 - Do not silently relax completeness rules; fail with explicit normalization report and required patch details.
