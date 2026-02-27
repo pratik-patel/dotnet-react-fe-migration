@@ -5,9 +5,9 @@
 - `.codex/agents/`: Agent definitions (`analyst`, `architect-normalizer`, `builder`, `validator`, `fixer`).
 - `.codex/rules/`: Global migration and React project rules consumed by agents.
 - `.codex/schemas/`: Stable JSON schemas (not agent outputs).
-- `scripts/`: Executable automation for deterministic validation/parity workflows.
-- `artifacts/`: Generated outputs only (manifests, scorecards, reports, screenshots).
+- `artefacts/`: Generated outputs only (manifests, scorecards, reports, screenshots).
 - `legacy-src/`: Imported .NET source project to analyze and migrate.
+- `react-app/`: Generated and normalized React implementation target.
 
 ## Manifest Modeling Contract
 - One manifest represents one feature screen.
@@ -16,7 +16,7 @@
 - Do not split by MVC action unless explicitly requested.
 
 ## Sequential Agent Prompts
-Use these prompts in order in Codex. Agents are expected to resolve default input/output locations from their own contracts.
+Use these prompts in order in Codex. Agents resolve default input/output locations from their own contracts.
 
 1. Analyst
 ```text
@@ -28,7 +28,7 @@ Run analyst.
 Run architect_normalizer.
 ```
 
-3. Builder (full pass)
+3. Builder
 ```text
 Run builder.
 ```
@@ -45,5 +45,44 @@ Run fixer loop until threshold_pass (or maxCycles).
 
 ## Optional Subset Prompt
 ```text
-Run agent builder only for these screenIds: <screen1>, <screen2>, <screen3>, preserving _execution-plan.json dependency order among the subset.
+Run builder only for these screenIds: <screen1>, <screen2>, <screen3>, preserving _execution-plan.json dependency order among the subset.
 ```
+
+## Agent Contract Checklist
+Use this checklist after each stage.
+
+1. Analyst
+- `artefacts/manifests/{screenId}.json` exists per grouped feature screen.
+- Aggregate outputs exist:
+  - `_summary.json`
+  - `_api-catalog.json`
+  - `_component-frequency.json`
+  - `_business-rules-audit.json`
+  - `_complexity-routing.json`
+  - `_execution-plan.json`
+  - `_manifest-validation-report.json`
+- No action-per-file decomposition unless explicitly requested.
+
+2. Architect Normalizer
+- `react-app/` exists (bootstrapped if missing).
+- `.codex/rules/react-project.md` exists and is updated.
+- `react-app/conversion-config.json` exists and is valid.
+- `_execution-plan.validation.json` exists with explicit validity/errors.
+
+3. Builder
+- Real pages generated under `react-app/src/pages/**`.
+- Supporting artifacts generated under `react-app/src/**`.
+- E2E specs generated under `react-app/e2e/**`.
+- Conversion notes generated under `artefacts/conversion-notes/**`.
+- No manifest-preview/debug UI as primary output.
+
+4. Validator
+- Per-screen composite scorecards exist in `artefacts/validation/scorecards/*-composite.json`.
+- `_composite-summary.json` exists with critical-failure and threshold status.
+- All required dimensions reported per screen.
+
+5. Fixer Loop
+- Iterative `validator -> fixer -> validator` runs are recorded.
+- Per-attempt remediation notes exist:
+  - `artefacts/conversion-notes/{screenId}-fix-{attempt}.md`
+- Loop stops only on `strict_pass`, `threshold_pass`, or `maxCycles`.

@@ -5,8 +5,8 @@ developer_instructions = """
 Role: Run parity validation and publish decision artifacts.
 
 Autonomous responsibility:
-- Discover built screens from `react-app/src/pages/**` and corresponding manifests from `artifacts/manifests/**`.
-- Execute the full validation pipeline using repository scripts/config defaults.
+- Discover built screens from `react-app/src/pages/**` and corresponding manifests from `artefacts/manifests/**`.
+- Perform validation through agent behavior and available runtime/tooling (no repository script dependency).
 - Produce scorecards and summary artifacts in fixed output paths without user-provided file lists.
 - Mark missing prerequisites explicitly (baseline/screenshots/e2e specs) instead of silently skipping dimensions.
 
@@ -21,12 +21,17 @@ Validate each screen across:
 - Multi-action coverage within each screen (create/edit/details/delete flows where declared)
 
 Write:
-- `/artifacts/validation/scorecards/{screenId}-composite.json`
-- `/artifacts/validation/scorecards/_composite-summary.json`
+- `/artefacts/validation/scorecards/{screenId}-composite.json`
+- `/artefacts/validation/scorecards/_composite-summary.json`
 
 Decision rule:
 - PASS only when all required dimensions pass.
 - Otherwise classify as NEEDS_REVIEW or FAIL with explicit reasons.
+
+Scorecard contract:
+- Include per-dimension status, severity, and concise evidence path/reference.
+- Include blocking vs non-blocking failure classification.
+- Include aggregate `criticalFailures` and `thresholdPass` fields in summary.
 
 Build quality guardrails:
 - Mark screen as FAIL if page is a manifest dump/preview rather than implemented UI.

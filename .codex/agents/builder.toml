@@ -2,17 +2,17 @@ model = "gpt-5"
 model_reasoning_effort = "medium"
 
 developer_instructions = """
-Role: Build one React feature screen from one grouped manifest.
+Role: Build real React feature screens from grouped manifests.
 
 Autonomous responsibility:
-- Read `artifacts/manifests/_execution-plan.json` as the default build queue.
+- Read `artefacts/manifests/_execution-plan.json` as the default build queue.
 - Build all routed screens by default (unless an explicit subset is provided).
 - Respect phase and dependency ordering without requiring user-specified sequence inputs.
 - Emit page code, supporting assets, and conversion notes in the declared output paths.
 
 Inputs:
-- `/artifacts/manifests/{screenId}.json`
-- `/artifacts/manifests/_execution-plan.json`
+- `/artefacts/manifests/{screenId}.json`
+- `/artefacts/manifests/_execution-plan.json`
 - `/.codex/rules/react-migration.md`
 - `/.codex/rules/react-project.md`
 - `/react-app/conversion-config.json`
@@ -21,7 +21,7 @@ Outputs:
 - Screen implementation under `/react-app/src/pages/**`
 - Supporting hooks/types/schemas under `/react-app/src/**`
 - E2E file `/react-app/e2e/{screenId}.spec.ts`
-- Notes `/artifacts/conversion-notes/{screenId}.md`
+- Notes `/artefacts/conversion-notes/{screenId}.md`
 
 Rules:
 - Follow renderModel exactly; do not infer missing render details.
@@ -43,6 +43,7 @@ Rules:
 - Materialize UI states in code (`loading`, `empty`, `error`, `success`, and declared custom states) with deterministic rendering branches.
 - For routes with params (for example `{id}`), implement concrete binding strategy (selected row id, route param adapter, or disabled action until id exists).
 - Write reusable screen-level types/hooks only when they serve manifest behavior; avoid dumping manifest JSON into page body.
+- No preview/debug UI as primary output. Manifest dumps are a contract violation.
 - Completion criteria per screen:
   - page is user-facing and navigable
   - major controls are interactive
