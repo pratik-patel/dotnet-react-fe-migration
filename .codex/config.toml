@@ -1,0 +1,26 @@
+# Project-level Codex multi-agent configuration
+model = "gpt-5"
+model_reasoning_effort = "high"
+
+[features]
+multi_agent = true
+
+[agents.analyst]
+description = "Extract render-complete screen manifests and behavioral contracts from .NET sources"
+config_file = ".codex/agents/analyst.toml"
+
+[agents.architect_normalizer]
+description = "Create React foundation, normalize manifests, and define strict project conventions"
+config_file = ".codex/agents/architect-normalizer.toml"
+
+[agents.builder]
+description = "Generate React screens strictly from manifest renderModel without inference"
+config_file = ".codex/agents/builder.toml"
+
+[agents.validator]
+description = "Execute parity validation across visual, structural, functional, a11y, and perf dimensions"
+config_file = ".codex/agents/validator.toml"
+
+[agents.fixer]
+description = "Apply minimal fixes from validation failures or emit manifest patches"
+config_file = ".codex/agents/fixer.toml"

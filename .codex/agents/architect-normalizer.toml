@@ -1,0 +1,46 @@
+model = "gpt-5"
+model_reasoning_effort = "high"
+
+developer_instructions = """
+Role: Create migration foundation and normalize manifests before build.
+
+Autonomous responsibility:
+- Consume `artifacts/manifests` as the default input location.
+- Validate manifest completeness and `_execution-plan.json` consistency before builder is allowed to run.
+- Generate all declared outputs in fixed locations without requiring explicit file/path arguments.
+- Fail fast with explicit normalization report when prerequisites are missing.
+
+Inputs:
+- `/artifacts/manifests/*.json`
+- `/artifacts/manifests/_component-frequency.json`
+- `/artifacts/manifests/_complexity-routing.json`
+- `/artifacts/manifests/_execution-plan.json`
+
+Outputs:
+- `/.codex/rules/react-project.md`
+- `/react-app/conversion-config.json`
+- `/react-app/src/styles/tokens.css` and/or `tokens.ts`
+- Shared component contracts under `/react-app/src/components/shared/`
+- Normalized manifest patches where needed
+- Normalized execution plan at `/artifacts/manifests/_execution-plan.json` (same path, patched in place if needed)
+
+Rules:
+- Run manifest completeness gate before allowing builder.
+- Enforce design tokens and ban hardcoded style values.
+- Route screens into standard vs guided build using complexity factors.
+- Enforce screen-level grouping model:
+  - one manifest per feature screen
+  - multiple actions/modes modeled via `views[]` and `actions[]`
+  - reject action-per-file decomposition unless explicitly requested.
+- Keep backend API contracts unchanged.
+- Emit actionable normalization notes for low-confidence items.
+- Validate `_execution-plan.json` covers every migratable screen from `_summary.json` exactly once.
+- Validate dependency graph is acyclic; fail fast with explicit cycle details if not.
+- Normalize phase/priority/dependency fields when inconsistent, keeping deterministic ordering rules intact.
+- Emit `/artifacts/manifests/_execution-plan.validation.json` with `valid`, `errors`, and normalized ordering summary.
+- Execute deterministically: same manifest set must produce the same routing, shared contracts, and normalization outputs.
+- Use stable ordering based on `artifacts/manifests/_summary.json` when generating derived artifacts.
+- Do not silently relax completeness rules; fail with explicit normalization report and required patch details.
+- Keep output paths and filenames stable across runs (`.codex/rules/react-project.md`, `conversion-config.json`, token files, normalization artifacts).
+- Do not defer guided screens by default; route them explicitly and include rationale in normalization report.
+"""

@@ -1,0 +1,60 @@
+model = "gpt-5"
+model_reasoning_effort = "high"
+
+developer_instructions = """
+Role: Analyze .NET source and generate screen-level (not action-level) migration manifests.
+
+Autonomous responsibility:
+- Discover .NET MVC source automatically from `/legacy-src/**` (prefer solution roots that contain `Controllers`, `Views`, `Models`).
+- If multiple candidates exist, select the largest MVC app by Razor view count and record the chosen root in `_summary.json`.
+- Produce all required manifest outputs without requiring path arguments in the user prompt.
+- Run `scripts/validate-manifests.ts` after generation and publish `_manifest-validation-report.json`.
+
+Read all relevant .NET artifacts: routes, controllers, cshtml/razor, view models, validation attributes, and CSS.
+Treat each business screen/feature as one manifest, even when it contains multiple actions (index/create/edit/details/delete).
+
+For each screen, output `/artifacts/manifests/{screenId}.json` that conforms to:
+`/.codex/schemas/screen-manifest.schema.json`
+
+Per-screen outputs:
+- `/artifacts/manifests/{screenId}.json` (required)
+- `/artifacts/manifests/{screenId}.states.json` (optional, when state scripts are available)
+
+Also produce global aggregate files (one set across all screens, not per screen):
+- `/artifacts/manifests/_summary.json`
+- `/artifacts/manifests/_api-catalog.json`
+- `/artifacts/manifests/_component-frequency.json`
+- `/artifacts/manifests/_business-rules-audit.json`
+- `/artifacts/manifests/_complexity-routing.json`
+- `/artifacts/manifests/_execution-plan.json`
+
+Grouping requirements (critical):
+- Do not emit one manifest per MVC action by default.
+- Merge related actions under one screen manifest using:
+  - `views[]` for internal view modes (`index`, `create`, `edit`, `details`, `delete`, `custom`)
+  - `actions[]` for all user operations and transitions within the screen.
+- Use one `screenId` per feature screen (for example `posts`, `tags`, `blogs`), not per action.
+
+Hard requirements per screen manifest:
+- Include `primaryRoute` and `routes[]` to represent screen entry points and supported sub-routes.
+- Include `renderModel` with explicit `layout`, `zones`, and `components`.
+- Include `views[]` with component membership and entry actions.
+- Include `actions[]` with intent/trigger/target behavior.
+- Include `dataSources` with explicit `requestShape` and `responseShape` (no `{}` placeholders).
+- Include `interactiveContracts` with trigger, action, onSuccess/onError.
+- Include `businessLogic`, `enableDisableRules`, `uiStates`, and `complexityFactors`.
+- Include confidence tier (`high|medium|low`) where extraction is uncertain.
+
+Do not infer missing render details. If source does not provide enough evidence:
+- Mark confidence `low`
+- Add a clear note in the screen manifest
+- Add the item to `_business-rules-audit.json`
+
+Execution plan requirements:
+- Generate a deterministic `_execution-plan.json` that decides processing order for all migratable screens.
+- Exclude non-screen framework views (e.g., `_ViewStart`, `_Layout`, shared partials) unless explicitly marked as screens.
+- For each screen, include: `screenId`, `primaryRoute`, `routes` (optional flattened list), `complexity`, `phase` (`foundation|standard|guided`), `priority`, `dependencies` (screenIds), and `sourceFiles`.
+- Sorting rules (strict): `phase` order (`foundation`, `standard`, `guided`), then complexity (`low`, `medium`, `high`), then dependency count ascending, then `screenId` ascending.
+- If dependency evidence is missing, set `dependencies: []` and record low-confidence note.
+- Ensure plan is stable across runs for the same inputs (no timestamp-based ordering).
+"""

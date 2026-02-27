@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "screen-manifest.schema.json",
+  "title": "Screen Manifest (Screen-Level, Multi-Action)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "screenId",
+    "feature",
+    "screenName",
+    "primaryRoute",
+    "routes",
+    "pageTitle",
+    "complexity",
+    "complexityFactors",
+    "sourceFiles",
+    "views",
+    "actions",
+    "dataSources",
+    "interactiveContracts",
+    "businessLogic",
+    "enableDisableRules",
+    "uiStates",
+    "renderModel"
+  ],
+  "properties": {
+    "screenId": { "type": "string", "minLength": 1 },
+    "feature": { "type": "string", "minLength": 1 },
+    "screenName": { "type": "string", "minLength": 1 },
+    "primaryRoute": { "type": "string", "minLength": 1 },
+    "routes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "path": { "type": "string", "minLength": 1 },
+          "purpose": { "type": "string" }
+        }
+      }
+    },
+    "pageTitle": { "type": "string", "minLength": 1 },
+    "complexity": {
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    },
+    "complexityFactors": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "sourceFiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["controllers", "views", "viewModels", "css"],
+      "properties": {
+        "controllers": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "views": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "viewModels": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "css": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "views": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["viewId", "type", "components", "entryActions"],
+        "properties": {
+          "viewId": { "type": "string", "minLength": 1 },
+          "type": {
+            "type": "string",
+            "enum": ["index", "create", "edit", "details", "delete", "custom"]
+          },
+          "route": { "type": "string" },
+          "sourceView": { "type": "string" },
+          "components": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "entryActions": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "confidence": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          }
+        }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["actionId", "label", "intent", "trigger", "onSuccess", "onError"],
+        "properties": {
+          "actionId": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1 },
+          "intent": {
+            "type": "string",
+            "enum": ["navigate", "create", "edit", "details", "delete", "submit", "cancel", "reset", "custom"]
+          },
+          "trigger": { "type": "string", "minLength": 1 },
+          "targetViewId": { "type": "string" },
+          "dataSourceRef": { "type": "string" },
+          "routeTemplate": { "type": "string" },
+          "requiresSelection": { "type": "boolean" },
+          "selectionSource": { "type": "string" },
+          "onSuccess": { "type": "array" },
+          "onError": { "type": "array" },
+          "confidence": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          }
+        }
+      }
+    },
+    "dataSources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "endpoint", "method", "requestShape", "responseShape"],
+        "properties": {
+          "id": { "type": "string" },
+          "endpoint": { "type": "string" },
+          "method": { "type": "string" },
+          "routeParams": { "type": "array", "items": { "type": "string" } },
+          "queryParams": { "type": "array", "items": { "type": "string" } },
+          "requestShape": {},
+          "responseShape": {},
+          "usedBy": { "type": "array", "items": { "type": "string" } },
+          "confidence": { "type": "string", "enum": ["high", "medium", "low"] }
+        }
+      }
+    },
+    "interactiveContracts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contractId", "elementId", "trigger", "action", "onSuccess", "onError"],
+        "properties": {
+          "contractId": { "type": "string" },
+          "elementId": { "type": "string" },
+          "trigger": { "type": "string" },
+          "preconditions": { "type": "array", "items": { "type": "string" } },
+          "action": { "type": "object" },
+          "onSuccess": { "type": "array" },
+          "onError": { "type": "array" },
+          "confidence": { "type": "string", "enum": ["high", "medium", "low"] }
+        }
+      }
+    },
+    "businessLogic": { "type": "array" },
+    "enableDisableRules": { "type": "array" },
+    "uiStates": { "type": "array" },
+    "renderModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["layout", "components"],
+      "properties": {
+        "layout": {
+          "type": "object",
+          "required": ["type", "zones"],
+          "properties": {
+            "type": { "type": "string" },
+            "breakpoints": { "type": "array", "items": { "type": "string" } },
+            "zones": { "type": "array" }
+          }
+        },
+        "components": {
+          "type": "object",
+          "minProperties": 1
+        }
+      }
+    },
+    "confidence": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}
