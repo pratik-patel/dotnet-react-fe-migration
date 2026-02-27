@@ -1,0 +1,21 @@
+body {
+  background: var(--surface-bg);
+  color: var(--text-color);
+}
+
+.navbar-nav > .dropdown:hover > .dropdown-menu,
+.navbar-nav > .dropdown:focus-within > .dropdown-menu {
+  display: block;
+}
+
+.route-note {
+  color: var(--text-muted);
+}
+
+.validation-summary {
+  margin-bottom: 15px;
+}
+
+.validation-summary ul {
+  margin-bottom: 0;
+}

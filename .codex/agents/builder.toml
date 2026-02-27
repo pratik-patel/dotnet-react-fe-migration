@@ -9,6 +9,7 @@ Autonomous responsibility:
 - Build all routed screens by default (unless an explicit subset is provided).
 - Respect phase and dependency ordering without requiring user-specified sequence inputs.
 - Emit page code, supporting assets, and conversion notes in the declared output paths.
+- Do not proceed to the next screen until current screen passes builder completion gates (or is explicitly marked blocked with evidence).
 
 Inputs:
 - `/artefacts/manifests/{screenId}.json`
@@ -22,6 +23,38 @@ Outputs:
 - Supporting hooks/types/schemas under `/react-app/src/**`
 - E2E file `/react-app/e2e/{screenId}.spec.ts`
 - Notes `/artefacts/conversion-notes/{screenId}.md`
+
+Execution contract (per screen):
+1) Preflight contract gate
+- Validate manifest conformance against `renderModel`, `likeToLikeSpec`, `buildFoundation`, and `businessLogicTrace`.
+- Reject incomplete manifests (missing layout tree, field/grid matrices, validation rules, style map, template usage, event flow, or evidence map).
+- Reject manifests with unresolved placeholders unless marked in `unknowns`/`blocked` with explicit reason.
+
+2) Deterministic implementation
+- Generate concrete JSX/TS/CSS from manifest contracts; do not use manifest-preview UI.
+- Preserve one-manifest-per-screen grouping (`views[]` + `actions[]`) unless split is explicitly requested.
+- Keep route-to-view/action mapping deterministic and stable.
+
+3) Heuristic completion (only when required)
+- Use controlled heuristics only for minor gaps (naming normalization, route casing, class alias mapping, default empty/loading/error state structure).
+- Heuristics must be evidence-backed using source refs from controller/view/css/template files.
+- Do not invent behavior or styling without evidence; instead record as `unknown/blocked`.
+
+4) Runtime verification before handoff
+- Run app-level checks for generated code: typecheck/build and screen-level renderability.
+- Run/refresh screen E2E spec for key navigation and interaction contracts.
+- If runtime execution is unavailable in environment, record blocker and continue with static verification.
+
+5) Parity comparison gate before next screen
+- Preferred: browser-based parity checks (DOM/state/navigation/styling) against source behavior.
+- Fallback when browser comparison is unavailable: source-based parity comparison using Razor views, shared layout, and CSS from source files.
+- Update `/artefacts/conversion-notes/{screenId}.md` with:
+  - matched items
+  - mismatches
+  - assumptions
+  - blocked items
+  - confidence and evidence refs
+- Do not advance to next screen when critical mismatches remain unaddressed unless explicitly accepted as blocked.
 
 Rules:
 - Follow renderModel exactly; do not infer missing render details.
@@ -43,6 +76,8 @@ Rules:
   - `form`: render labeled inputs, validation placeholders, submit/cancel actions, and disabled/loading states.
   - `link-group`: render actionable navigation links/buttons with valid runtime targets.
   - `heading/content/alerts`: render user-facing UI blocks, not debug artifacts.
+- Use styling/navigation/template evidence from `likeToLikeSpec.styleMap`, `likeToLikeSpec.layoutTree`, `likeToLikeSpec.templateUsage`, and `businessLogicTrace` as primary implementation source.
+- When source indicates Bootstrap/layout semantics (navbar/dropdown/grid/utility classes), preserve equivalent structure and behavior in React output.
 - Materialize interaction contracts in code:
   - bind `elementId` to `data-testid`
   - map trigger -> handler
@@ -66,4 +101,5 @@ Rules:
 - Do not skip routed screens unless explicitly instructed with a subset list.
 - Do not swap implementation scope (e.g., structural-only pass) unless explicitly requested.
 - If backend/runtime dependency is unavailable, still generate full UI structure and mark integration gaps in conversion notes.
+- Build cannot be marked complete for a screen until verification + parity comparison gate is recorded in conversion notes.
 """

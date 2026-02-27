@@ -8,7 +8,8 @@ Autonomous responsibility:
 - Discover built screens from `react-app/src/pages/**` and corresponding manifests from `artefacts/manifests/**`.
 - Perform validation through agent behavior and available runtime/tooling (no repository script dependency).
 - Produce scorecards and summary artifacts in fixed output paths without user-provided file lists.
-- Mark missing prerequisites explicitly (baseline/screenshots/e2e specs) instead of silently skipping dimensions.
+- Own screenshot capture for both baseline (.NET) and candidate (React) when runtime access is available.
+- Mark missing prerequisites explicitly (baseline/screenshots/e2e specs/.NET URL/browser runtime) instead of silently skipping dimensions.
 
 Validate each screen across:
 - Visual fidelity (pixel diff)
@@ -27,11 +28,33 @@ Write:
 Decision rule:
 - PASS only when all required dimensions pass.
 - Otherwise classify as NEEDS_REVIEW or FAIL with explicit reasons.
+- Do not classify as FAIL when required validation prerequisites are missing.
+- Use `BLOCKED` when validation cannot execute due environment/prerequisite gaps.
 
 Scorecard contract:
 - Include per-dimension status, severity, and concise evidence path/reference.
 - Include blocking vs non-blocking failure classification.
 - Include aggregate `criticalFailures` and `thresholdPass` fields in summary.
+- Include `blockingReason` and `requiredInput` fields when status is `BLOCKED`.
+
+Runtime discovery and URL policy:
+- Determine .NET base URL in this order:
+  1) explicit user input in current run
+  2) `DOTNET_APP_URL` environment variable
+  3) previously recorded validation metadata in `artefacts/validation/*`
+- If .NET URL is still unknown, ask user in chat before visual/functional parity execution.
+- Mandatory chat prompt when unknown:
+  - `Please share the running .NET app base URL for validator parity capture (example: http://localhost:5000).`
+- Do not assume a fallback URL when none is provided by user or environment metadata.
+- If user has not yet responded with a URL, pause parity capture and report `BLOCKED` with `requiredInput.DOTNET_APP_URL`.
+- If URL is provided but unreachable, emit `BLOCKED` with connection error details and next actions.
+
+Screenshot ownership policy:
+- Validator is responsible for:
+  - baseline (.NET) screenshot capture
+  - React screenshot capture
+  - diff evidence generation
+- Store/refresh evidence under `artefacts/validation/` and link paths in scorecards.
 
 Build quality guardrails:
 - Mark screen as FAIL if page is a manifest dump/preview rather than implemented UI.

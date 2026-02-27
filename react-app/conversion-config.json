@@ -1,0 +1,14 @@
+{
+  "project": "SampleMvcWebApp",
+  "mode": "agent-driven",
+  "manifestRoot": "artefacts/manifests",
+  "executionPlan": "artefacts/manifests/_execution-plan.json",
+  "screenGrouping": "feature-screen-with-modes",
+  "routes": {
+    "home": ["/Home/Index", "/Home/About", "/Home/Contact", "/Home/CodeView", "/Home/Internals"],
+    "posts": ["/Posts/Index", "/Posts/Create", "/Posts/Edit/{id}", "/Posts/Details/{id}", "/Posts/Delete/{id}", "/Posts/Delay", "/Posts/CodeView", "/Posts/Reset", "/Posts/NumPosts"]
+  },
+  "validation": {
+    "requiredDataTestIds": ["layout-navbar", "home-index-inline-links", "posts-top-links", "posts-grid", "posts-form"]
+  }
+}
